@@ -1,6 +1,7 @@
 #pragma once
 #include <string>
 #include <list>
+#include "Score.h"
 
 using namespace std;
 
@@ -10,6 +11,7 @@ class Apartment
 	
 	list<string> Business;
 
+	Score puntaje;
 
 	public:
 
@@ -18,9 +20,11 @@ class Apartment
 			
 		Apartment();
 
-
 		list<string> getBusiness() { return Business; }
 	
+		Score getPuntaje() { return puntaje; }
+
+		void setPuntaje(Score Puntos) { puntaje = Puntos; }
 
 
 };

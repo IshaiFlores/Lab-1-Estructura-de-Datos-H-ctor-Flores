@@ -11,7 +11,25 @@
 using namespace std;
 
 
-int BuscarApartamento(vector<Apartment> Mapa, string negocio, int index)
+ bool Equals(Score No1, Score No2)
+ {
+     if (No1.GetMax() == No2.GetMax() && No1.GetMin() == No2.GetMin() && No1.GetTotal() == No2.GetTotal())
+     {
+
+         return true;
+
+     }
+     else
+     {
+
+         return false;
+
+     }
+
+ }
+
+
+int BuscarApartamento(vector<Apartment> Mapa, string negocio, int index)    
 {
     //Inicialización de pasos que debe recorrer hacia arriba y hacia abajo
     int pasosBack = -1;
@@ -19,28 +37,61 @@ int BuscarApartamento(vector<Apartment> Mapa, string negocio, int index)
     int pasosFront = -1;
 
     //Lista temporal de string
-    list<string> Temp;
+        list<string> Temp;
 
 
     //Iterador que recorre el mapa de apartamentos del índice selccionado hacia atras
-    for (auto it3 = Mapa.begin() + index; it3 != Mapa.begin(); it3--)
+    auto it = Mapa.begin() + index;
+
+    while (it >= Mapa.begin())
     {
-        Temp = it3->getBusiness();
+        Temp = it->getBusiness();
 
         if (find(Temp.begin(), Temp.end(), negocio) != Temp.end())
         {
             //Obtiene la distancia desde el apartamento hasta el negocio
-            pasosBack = distance(it3, Mapa.begin() + index);
+            pasosBack = distance(it, Mapa.begin() + index);
 
             break;
 
+
         }
 
+        // Verificar si hemos alcanzado el principio del vector
+        if (it == Mapa.begin()) {
+            // Realizar la comparación con el primer elemento
+            Temp = it->getBusiness();
+            if (find(Temp.begin(), Temp.end(), negocio) != Temp.end()) {
+                //Obtiene la distancia desde el apartamento hasta el negocio
+                pasosBack = distance(it, Mapa.begin() + index);
+               
+            }
+
+            break;
+        }
+
+        --it;
     }
 
-    //Iterador que recorre el mapa de apartamentos del indice seleccionado hacia después
-    for (auto it2 = Mapa.begin() + index; it2 != Mapa.end(); it2++)
+    auto it2 = Mapa.begin() + index;
+
+    while(it2 <= Mapa.end())
     {
+         //Iterador que recorre el mapa de apartamentos del indice seleccionado hacia al frente
+   
+
+        if (it2 == Mapa.end())
+        {
+
+            if (find(Temp.begin(), Temp.end(), negocio) != Temp.end())
+            {
+                //Obtiene la distancia desde el apartamento hasta el negocio
+                pasosFront = distance(Mapa.begin() + index, it2);
+
+            }
+            break;
+        }
+
         Temp = it2->getBusiness();
 
         if (find(Temp.begin(), Temp.end(), negocio) != Temp.end())
@@ -51,6 +102,10 @@ int BuscarApartamento(vector<Apartment> Mapa, string negocio, int index)
             break;
 
         }
+
+        
+
+        it2++;
     }
 
 
@@ -74,12 +129,14 @@ int BuscarApartamento(vector<Apartment> Mapa, string negocio, int index)
 }
 
 
-int Recomendacion(vector<Apartment> Mapa, vector<string> B)
+int Recomendacion(vector<Apartment> &Mapa, vector<string> B)
 {   
     //Inicialización de variables comparativas
     int MinPasos = numeric_limits<int>::max();
     int BestIndex = -1;
     int BestMaxpasitos = 0;
+    int BestMinpasitos = 0;
+
 
     //Recorre el mapa de apartamentos
     for(int i = 0; i < Mapa.size(); i++)
@@ -87,12 +144,20 @@ int Recomendacion(vector<Apartment> Mapa, vector<string> B)
         //Inicialización de variables contadoras de pasos
         int totalPasos = 0;
         int Maxpasitos = 0;
+        int Minpasitos = numeric_limits<int>::max();
 
         //Foreach que recorre el vector de negocios
         for(const string& negocio:B)
         {
             //Inicializa la cantidad de pasos necesarios para encontrar un negocio
             int pasitos = BuscarApartamento(Mapa,negocio,i);
+
+            //Detiene la función si no se encontro un negocio
+            if(pasitos == -1)
+            {
+               
+                return -1;
+            }
 
             //Registra la mayor cantidad de pasos por recorrido
             if(pasitos > Maxpasitos)
@@ -101,19 +166,24 @@ int Recomendacion(vector<Apartment> Mapa, vector<string> B)
             
             }
 
-            //Detiene la función si no se encontro un negocio
-            if(pasitos == -1)
+            //Registra la menor cantidad de pasos por recorrido
+            if(pasitos < Minpasitos)
             {
             
-                BestIndex = NULL;
-
-                return BestIndex;
+                Minpasitos = pasitos;
+            
             }
+
+            
         
             //Realiza la sumatoria de pasos 
             totalPasos += pasitos;
 
         }
+
+        Score score(Maxpasitos, Minpasitos, totalPasos);
+
+        Mapa[i].setPuntaje(score);
 
         //Compara la cantidad de pasos para cada apartamento
         if(totalPasos < MinPasos)
@@ -125,8 +195,9 @@ int Recomendacion(vector<Apartment> Mapa, vector<string> B)
 
             BestMaxpasitos = Maxpasitos;
 
+            BestMinpasitos = Minpasitos;            
          
-        }else if(totalPasos == MinPasos) 
+        }else if(totalPasos == MinPasos)
         {
            if(Maxpasitos < BestMaxpasitos) //Verifica la maxima cantidad de pasos recorridos en ambos apartamentos
            {
@@ -136,15 +207,69 @@ int Recomendacion(vector<Apartment> Mapa, vector<string> B)
                BestIndex = i;
 
                BestMaxpasitos = Maxpasitos;
+
+               BestMinpasitos = Minpasitos;
+
+             
           
+           }else if(Maxpasitos == BestMaxpasitos && Minpasitos < BestMinpasitos)
+           {
+          
+                   MinPasos = totalPasos;
+
+                   BestIndex = i;
+
+                   BestMaxpasitos = Maxpasitos;
+
+                   BestMinpasitos = Minpasitos;
+
+                   
+               
            }
         }       
     }
+
+  
 
     //Regresa el Index del Apartamento recomendado
     return BestIndex;
 
 }
+
+list<int> Resultados(vector<Apartment> &Mapa, int BestIndex)
+{
+    list<int>Coincidencias;
+
+    if(BestIndex == -1)
+    {
+    
+        return Coincidencias;
+    
+    }
+
+    for(int i = 0; i < Mapa.size(); i++)
+    {
+        
+        if(Equals(Mapa[BestIndex].getPuntaje(), Mapa[i].getPuntaje()))
+        {
+        
+            Coincidencias.push_back(i);
+        
+        }
+    
+    }
+
+    return Coincidencias;
+
+}
+
+
+
+
+
+
+
+
 
 template<typename T>
 
@@ -191,7 +316,7 @@ int main()
         cout << "Ingrese la direccion donde desea exportar los apartamentos recomendados (sin comillas)" << endl;
         cin >> ruta2;
 
-        Archivo.open(ruta2 + "/Recomendacion Apartamentos.txt");
+        Archivo.open(ruta2 + "/Output.txt");
 
        
         cin.clear();
@@ -236,6 +361,7 @@ int main()
 
         vector<string> input2;
 
+        list<int> resultado;
 
         //Recorre cada elemento del Array: Input 1
         for (const auto& item : input1Array) 
@@ -270,29 +396,39 @@ int main()
         }
             
         //Declara una variable con el resultado del índice del apartamento "Recomendado"
-        int resultado = Recomendacion(Map, input2);
+        resultado = Resultados(Map,Recomendacion(Map, input2));
 
       
+  
+            Archivo << "[";
+            cout << "[";
 
-        if(resultado == 0)
-        {
-        
-           Archivo << "[" << "]" << endl;
-           cout << "[" << "]" << endl;
+            if(!resultado.empty())
+            {
+                auto iter = resultado.begin();
 
-        }else
-        {
+                Archivo << *iter;
+                cout << *iter;
+                ++iter;
+
+                for(; iter != resultado.end(); ++iter)
+                {
+                    cout << "," << *iter;   
+                    Archivo << "," << *iter;
+                }
+                resultado.pop_front();
+            }
+
+            Archivo << "]" << endl;
+            cout <<  "]" << endl;
         
-            Archivo << "[" << resultado << "]" << endl;
-            cout << "[" << resultado << "]" << endl;
-        }
         
         //Vacia los vectores 
         EmptyVector(Map);
 
         EmptyVector(input2);
                     
-        Archivo.clear();
+       
     }
 
     // Cerrar el archivo
