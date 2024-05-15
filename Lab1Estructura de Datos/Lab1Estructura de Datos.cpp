@@ -11,162 +11,195 @@
 using namespace std;
 
 
- bool Equals(Score No1, Score No2)
+/**
+* @brief Verificar igualdad entre dos objetos de puntuación
+*
+* Esta función compara dos objetos de puntuación (Score) para determinar si son iguales.
+* Compara los valores máximos, mínimos y totales de las puntuaciones y retorna true si son
+* iguales en todos los aspectos, o false en caso contrario.
+*
+* @param No1 Primer objeto de puntuación a comparar.
+* @param No2 Segundo objeto de puntuación a comparar.
+* @return true si los objetos de puntuación son iguales en todos los aspectos, o false en caso contrario.
+*/
+bool Equals(Score No1, Score No2)
+{
+    // Compara los valores máximos, mínimos y totales de las puntuaciones
+    if (No1.GetMax() == No2.GetMax() && No1.GetMin() == No2.GetMin() && No1.GetTotal() == No2.GetTotal())
+    {
+        return true; // Retorna true si son iguales en todos los aspectos
+    }
+    else
+    {
+        return false; // Retorna false si hay alguna diferencia en las puntuaciones
+    }
+}
+
+
+
+
+
+
+
+ /**
+  * @brief Buscar Apartamento más cercano a un negocio dado
+  *
+  * Esta función busca el apartamento más cercano a un negocio específico en un
+  * mapa de apartamentos, a partir de un índice dado en el mapa. Calcula la cantidad
+  * de pasos necesarios para llegar al negocio desde el apartamento en ambas direcciones
+  * (hacia arriba y hacia abajo en el mapa), y retorna la cantidad mínima de pasos requeridos.
+  *
+  * @param Mapa Vector que contiene los apartamentos disponibles en el mapa.
+  * @param negocio Nombre del negocio que se desea encontrar.
+  * @param index Índice del apartamento desde el cual comenzar la búsqueda en el mapa.
+  * @return La cantidad mínima de pasos necesarios para llegar al negocio desde el apartamento
+  *         especificado. Si no se encuentra el negocio en ningún apartamento, se retorna -1.
+  */
+ int BuscarApartamento(vector<Apartment> Mapa, string negocio, int index)
  {
-     if (No1.GetMax() == No2.GetMax() && No1.GetMin() == No2.GetMin() && No1.GetTotal() == No2.GetTotal())
+     // Inicialización de pasos que debe recorrer hacia arriba y hacia abajo
+     int pasosBack = -1;
+     int pasosFront = -1;
+
+     // Lista temporal de strings para almacenar los negocios de cada apartamento
+     list<string> Temp;
+
+     // Iterador que recorre el mapa de apartamentos del índice seleccionado hacia atrás
+     auto it = Mapa.begin() + index;
+     while (it >= Mapa.begin())
      {
+         Temp = it->getBusiness();
 
-         return true;
+         // Verifica si el negocio está presente en el apartamento actual
+         if (find(Temp.begin(), Temp.end(), negocio) != Temp.end())
+         {
+             // Obtiene la distancia desde el apartamento hasta el negocio
+             pasosBack = distance(it, Mapa.begin() + index);
+             break;
+         }
 
+         // Verifica si hemos alcanzado el principio del vector
+         if (it == Mapa.begin()) {
+             // Realiza la comparación con el primer elemento
+             Temp = it->getBusiness();
+             if (find(Temp.begin(), Temp.end(), negocio) != Temp.end()) {
+                 // Obtiene la distancia desde el apartamento hasta el negocio
+                 pasosBack = distance(it, Mapa.begin() + index);
+             }
+             break;
+         }
+
+         --it;
      }
-     else
+
+     // Iterador que recorre el mapa de apartamentos del índice seleccionado hacia adelante
+     auto it2 = Mapa.begin() + index;
+     while (it2 <= Mapa.end())
      {
+         // Verifica si hemos alcanzado el final del vector
+         if (it2 == Mapa.end())
+         {
+             // Verifica si el negocio está presente en el apartamento actual
+             if (find(Temp.begin(), Temp.end(), negocio) != Temp.end())
+             {
+                 // Obtiene la distancia desde el apartamento hasta el negocio
+                 pasosFront = distance(Mapa.begin() + index, it2);
+             }
+             break;
+         }
 
-         return false;
+         Temp = it2->getBusiness();
 
+         // Verifica si el negocio está presente en el apartamento actual
+         if (find(Temp.begin(), Temp.end(), negocio) != Temp.end())
+         {
+             // Obtiene la distancia desde el apartamento hasta el negocio
+             pasosFront = distance(Mapa.begin() + index, it2);
+             break;
+         }
+
+         ++it2;
      }
 
+     // Si no encontró un negocio en un recorrido hacia abajo o hacia arriba, devuelve el máximo de los dos
+     if (pasosFront == -1 || pasosBack == -1)
+     {
+         return max(pasosBack, pasosFront);
+     }
+     // Si no se encontró el negocio en el mapa, retorna -1
+     else if (pasosFront == -1 && pasosBack == -1)
+     {
+         return -1;
+     }
+
+     // Retorna la cantidad mínima de pasos necesarios para encontrar el negocio
+     return min(pasosBack, pasosFront);
  }
 
 
-int BuscarApartamento(vector<Apartment> Mapa, string negocio, int index)    
-{
-    //Inicialización de pasos que debe recorrer hacia arriba y hacia abajo
-    int pasosBack = -1;
-
-    int pasosFront = -1;
-
-    //Lista temporal de string
-        list<string> Temp;
 
 
-    //Iterador que recorre el mapa de apartamentos del índice selccionado hacia atras
-    auto it = Mapa.begin() + index;
-
-    while (it >= Mapa.begin())
-    {
-        Temp = it->getBusiness();
-
-        if (find(Temp.begin(), Temp.end(), negocio) != Temp.end())
-        {
-            //Obtiene la distancia desde el apartamento hasta el negocio
-            pasosBack = distance(it, Mapa.begin() + index);
-
-            break;
 
 
-        }
-
-        // Verificar si hemos alcanzado el principio del vector
-        if (it == Mapa.begin()) {
-            // Realizar la comparación con el primer elemento
-            Temp = it->getBusiness();
-            if (find(Temp.begin(), Temp.end(), negocio) != Temp.end()) {
-                //Obtiene la distancia desde el apartamento hasta el negocio
-                pasosBack = distance(it, Mapa.begin() + index);
-               
-            }
-
-            break;
-        }
-
-        --it;
-    }
-
-    auto it2 = Mapa.begin() + index;
-
-    while(it2 <= Mapa.end())
-    {
-         //Iterador que recorre el mapa de apartamentos del indice seleccionado hacia al frente
-   
-
-        if (it2 == Mapa.end())
-        {
-
-            if (find(Temp.begin(), Temp.end(), negocio) != Temp.end())
-            {
-                //Obtiene la distancia desde el apartamento hasta el negocio
-                pasosFront = distance(Mapa.begin() + index, it2);
-
-            }
-            break;
-        }
-
-        Temp = it2->getBusiness();
-
-        if (find(Temp.begin(), Temp.end(), negocio) != Temp.end())
-        {
-            //Obtiene la distancia desde el apartamento hasta el negocio
-            pasosFront = distance(Mapa.begin() + index, it2);
-
-            break;
-
-        }
-
-        
-
-        it2++;
-    }
 
 
-    //Si no encontró un negocio en un recorrido hacia abajo o hacia arriba, devuelve el primer apartamento que encontró
-    if (pasosFront == -1 || pasosBack == -1)
-    {
-    
-        return max(pasosBack, pasosFront);
-    
-    //Si no encontro el negocio en el mapa, retorna -1
-    }else if( pasosFront == -1 && pasosBack == -1)
-    {
-    
-        return -1;
 
-    }
 
-    //Retorna la cantidad minima de pasos necesarios para encontrar el negocio
-      return min(pasosBack, pasosFront);
-
-}
-
+/**
+ * Recomendación de apartamento basada en la cercanía a negocios
+ *
+ * Esta función recomienda un apartamento dentro de un mapa de apartamentos
+ * basándose en la cercanía a una lista de negocios dados. Calcula la cantidad
+ * mínima de pasos necesarios para visitar todos los negocios desde cada apartamento,
+ * y selecciona el apartamento con el menor total de pasos como el recomendado.
+ * Si hay varios apartamentos con la misma cantidad mínima de pasos, se selecciona
+ * el que tenga la menor cantidad de pasos máxima en su recorrido.
+ *
+ * @param Mapa: Vector que contiene los apartamentos disponibles para recomendación.
+ * @param B: Vector de strings que representa la lista de negocios a visitar.
+ * @return; El índice del apartamento recomendado en el vector Mapa. Si no se puede
+ *         encontrar un apartamento que permita visitar todos los negocios, se retorna -1.
+ *  y se coloca un espacio vacío.
+ */
 
 int Recomendacion(vector<Apartment> &Mapa, vector<string> B)
 {   
     //Inicialización de variables comparativas
-    int MinPasos = numeric_limits<int>::max();
-    int BestIndex = -1;
-    int BestMaxpasitos = 0;
-    int BestMinpasitos = 0;
+    int MinPasos = numeric_limits<int>::max(); // Cantidad mínima de pasos (Total de pasos del Apartamento Recomendado)
+    int BestIndex = -1; // Índice del apartamento recomendado
+    int BestMaxpasitos = 0; // Máxima cantidad de pasos en el recorrido recomendado
+    int BestMinpasitos = 0; // Mínima cantidad de pasos en el recorrido recomendado
 
 
     //Recorre el mapa de apartamentos
     for(int i = 0; i < Mapa.size(); i++)
     {
         //Inicialización de variables contadoras de pasos
-        int totalPasos = 0;
-        int Maxpasitos = 0;
-        int Minpasitos = numeric_limits<int>::max();
+        int totalPasos = 0; // Total de pasos en el recorrido desde este apartamento
+        int Maxpasitos = 0; // Máxima cantidad de pasos en el recorrido desde este apartamento
+        int Minpasitos = numeric_limits<int>::max(); // Mínima cantidad de pasos en el recorrido desde este apartamento
 
         //Foreach que recorre el vector de negocios
         for(const string& negocio:B)
         {
-            //Inicializa la cantidad de pasos necesarios para encontrar un negocio
+            // Calcula la cantidad de pasos necesarios para encontrar un negocio desde este apartamento
             int pasitos = BuscarApartamento(Mapa,negocio,i);
 
-            //Detiene la función si no se encontro un negocio
+            // Detiene la función si no se encontró un negocio desde este apartamento
             if(pasitos == -1)
             {
                
                 return -1;
             }
 
-            //Registra la mayor cantidad de pasos por recorrido
+            // Registra la mayor cantidad de pasos por recorrido desde este apartamento
             if(pasitos > Maxpasitos)
             {
                 Maxpasitos = pasitos;
             
             }
 
-            //Registra la menor cantidad de pasos por recorrido
+            // Registra la menor cantidad de pasos por recorrido desde este apartamento
             if(pasitos < Minpasitos)
             {
             
@@ -176,19 +209,21 @@ int Recomendacion(vector<Apartment> &Mapa, vector<string> B)
 
             
         
-            //Realiza la sumatoria de pasos 
+            // Realiza la sumatoria de pasos desde este apartamento
             totalPasos += pasitos;
 
         }
 
+        // Crea un objeto Score que representa la puntuación del apartamento actual
         Score score(Maxpasitos, Minpasitos, totalPasos);
 
+        // Asigna la puntuación al apartamento actual en el mapa
         Mapa[i].setPuntaje(score);
 
-        //Compara la cantidad de pasos para cada apartamento
+        // Compara la cantidad total de pasos para cada apartamento
         if(totalPasos < MinPasos)
         {
-            //Si es menor, el apartamento se vuelve el "Recomendado"
+            /// Si es menor, el apartamento Actual  se vuelve el "Recomendado"
             MinPasos = totalPasos;
         
             BestIndex = i;
@@ -199,9 +234,11 @@ int Recomendacion(vector<Apartment> &Mapa, vector<string> B)
          
         }else if(totalPasos == MinPasos)
         {
-           if(Maxpasitos < BestMaxpasitos) //Verifica la maxima cantidad de pasos recorridos en ambos apartamentos
+            // Si hay varios apartamentos con la misma cantidad total de pasos
+           if(Maxpasitos < BestMaxpasitos) // Verifica la máxima cantidad de pasos recorridos en ambos apartamentos
            {
-               //Si la maxima cantidad pasos del Apartamento actual es menor que el "Recomendado", declara el nuevo "Recomendado
+               // Si la máxima cantidad de pasos del apartamento actual es menor que el "Recomendado",
+                // se declara el nuevo "Recomendado"
                MinPasos = totalPasos;
 
                BestIndex = i;
@@ -211,10 +248,11 @@ int Recomendacion(vector<Apartment> &Mapa, vector<string> B)
                BestMinpasitos = Minpasitos;
 
              
-          
+            
            }else if(Maxpasitos == BestMaxpasitos && Minpasitos < BestMinpasitos)
            {
-          
+               // Si hay varios apartamentos con la misma cantidad total y máxima de pasos
+                   // pero menor cantidad mínima de pasos, se selecciona el que tiene la menor cantidad mínima de pasos de los apartamentos comparados
                    MinPasos = totalPasos;
 
                    BestIndex = i;
@@ -231,39 +269,54 @@ int Recomendacion(vector<Apartment> &Mapa, vector<string> B)
 
   
 
-    //Regresa el Index del Apartamento recomendado
+    //Regresa el Indice del Apartamento recomendado
     return BestIndex;
 
 }
 
-list<int> Resultados(vector<Apartment> &Mapa, int BestIndex)
+
+
+
+
+
+/**
+ * @brief Obtener resultados de apartamentos con puntuaciones similares al recomendado
+ *
+ * Esta función busca en el mapa de apartamentos aquellos que tengan puntuaciones similares
+ * a la del apartamento recomendado, identificado por su índice BestIndex. Compara las puntuaciones
+ * del apartamento recomendado con las de los demás apartamentos en el mapa y devuelve una lista de
+ * índices de los apartamentos que tienen puntuaciones iguales.
+ *
+ * @param Mapa Vector que contiene los apartamentos disponibles para búsqueda.
+ * @param BestIndex Índice del apartamento recomendado en el mapa.
+ * @return Una lista de índices de apartamentos que tienen puntuaciones iguales a la del apartamento
+ *         recomendado. Si no se recomienda ningún apartamento (BestIndex == -1), se devuelve una lista vacía.
+ */
+list<int> Resultados(vector<Apartment>& Mapa, int BestIndex)
 {
-    list<int>Coincidencias;
+    // Lista para almacenar los índices de los apartamentos que tienen puntuaciones iguales a la del recomendado
+    list<int> Coincidencias;
 
-    if(BestIndex == -1)
+    // Verifica si no se recomendó ningún apartamento
+    if (BestIndex == -1)
     {
-    
-        return Coincidencias;
-    
+        return Coincidencias; // Retorna la lista vacía
     }
 
-    for(int i = 0; i < Mapa.size(); i++)
+    // Recorre el mapa de apartamentos para comparar las puntuaciones
+    for (int i = 0; i < Mapa.size(); i++)
     {
-        
-        if(Equals(Mapa[BestIndex].getPuntaje(), Mapa[i].getPuntaje()))
+        // Compara las puntuaciones del apartamento recomendado con las del apartamento actual
+        if (Equals(Mapa[BestIndex].getPuntaje(), Mapa[i].getPuntaje()))
         {
-        
+            // Si las puntuaciones son iguales, agrega el índice del apartamento actual a la lista de coincidencias
             Coincidencias.push_back(i);
-        
         }
-    
     }
 
+    // Retorna la lista de índices de apartamentos con puntuaciones iguales
     return Coincidencias;
-
 }
-
-
 
 
 

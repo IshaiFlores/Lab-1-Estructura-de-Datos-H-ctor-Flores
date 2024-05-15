@@ -1,9 +1,11 @@
 #pragma once
 class Score
 {
-
+	//Max Pasos
 	int Max;
+
 	int Min;
+
 	int Total;
 
 
